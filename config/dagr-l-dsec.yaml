@@ -1,0 +1,73 @@
+dataset_directory: "/data/storage/daniel/aegnn/"
+output_directory: "/data/storage/daniel/aegnn/logs"
+
+task: detection
+dataset: dsec
+
+# network
+radius: 0.01
+time_window_us: 1000000
+max_neighbors: 16
+n_nodes: 50000
+
+batch_size: 64
+
+activation: relu
+edge_attr_dim: 2
+aggr: sum
+kernel_size: 5
+pooling_aggr: max
+
+base_width: 0.5
+after_pool_width: 1
+net_stem_width: 1
+yolo_stem_width: 1
+num_scales: 2
+
+# learning
+weight_decay: 0.00001
+clip: 0.1
+
+pooling_dim_at_output: 5x7
+
+aug_trans: 0.1
+aug_zoom: 1.5
+aug_p_flip: 0.5
+
+img_net: resnet18
+
+l_r: 0.0002
+tot_num_epochs: 801
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
