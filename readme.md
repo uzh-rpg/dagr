@@ -25,11 +25,10 @@ First, download the github repository and its dependencies
 ```bash
 WORK_DIR=/path/to/work/directory/
 cd $WORK_DIR
-git clone git@github.com:uzh-rpg/low_latency_object_detection.git # TODO update url
-DAGR_DIR=$WORK_DIR/low_latency_object_detection # TODO update url
+git clone git@github.com:uzh-rpg/dagr.git
+DAGR_DIR=$WORK_DIR/dagr
 
 cd $DAGR_DIR 
-git checkout opensource # TODO remove
 
 ```
 Then start by installing the main libraries. Make sure Anaconda (or better Mamba), PyTorch, and CUDA is installed. 
