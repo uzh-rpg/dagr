@@ -1,6 +1,6 @@
 # Low Latency Automotive Vision with Event Cameras
 
-
+<p align="center">
 <a href="https://youtu.be/dwzGhMQCc4Y">
   <img src="assets/thumbnail_yt.png" alt="DAGR" width="500"/>
 </a>
