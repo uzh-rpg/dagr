@@ -1,11 +1,10 @@
 # Low Latency Automotive Vision with Event Cameras
 
-<!---<p align="center">
-  <a href="https://youtu.be/XXX">
-    <img src="assets/thumbnail_yt.jpg" alt="DAGR" width="500"/>
-  </a>
+
+<a href="https://youtu.be/dwzGhMQCc4Y">
+  <img src="assets/thumbnail_yt.jpg" alt="DAGR" width="500"/>
+</a>
 </p>
---->
 
 This repository contains code from our 2024 Nature paper 
 **_Low Latency Automotive Vision with Event Cameras_** by Daniel Gehrig and Davide Scaramuzza. 
