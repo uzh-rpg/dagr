@@ -11,7 +11,7 @@ This repository contains code from our 2024 Nature paper which can be accessed f
 If you use our code or refer to this project, please cite it using
 
 ```bibtex
-@inproceedings{Gehrig24nature,
+@Article{Gehrig24nature,
   author    = {Gehrig, Daniel and Scaramuzza, Davide},
   title     = {Low Latency Automotive Vision with Event Cameras},
   booktitle = {Nature},
