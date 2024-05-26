@@ -18,7 +18,7 @@ git checkout 618fd8c08b2bc5fac9ffbb19a3b7e039ea0d5b9a
 cd $DAGR_DIR/libs
 git clone git@github.com:uzh-rpg/dsec-det.git
 cd $DAGR_DIR/libs/dsec-det
-git checkout f3ea48b0eebef93b2052396fd23b3d40e6ff0363
+git checkout a649eeb892743a2687aa484f28e00f908700c239
 
 pip install -e $DAGR_DIR/libs/dsec-det
 pip install -e $DAGR_DIR/libs/detectron2
