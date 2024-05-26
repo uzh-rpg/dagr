@@ -45,6 +45,7 @@ The above bash file will figure out the CUDA and Torch version, and install the 
 Then, download and install additional dependencies locally 
 ```bash
 bash download_and_install_dependencies.sh
+conda install -y h5py blosc-hdf5-plugin
 ```
 Finally, install the dagr package
 ```bash
