@@ -2,7 +2,7 @@
 
 
 <a href="https://youtu.be/dwzGhMQCc4Y">
-  <img src="assets/thumbnail_yt.jpg" alt="DAGR" width="500"/>
+  <img src="assets/thumbnail_yt.png" alt="DAGR" width="500"/>
 </a>
 </p>
 
