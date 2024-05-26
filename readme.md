@@ -6,11 +6,11 @@
 </a>
 </p>
 
-This repository contains code from our 2024 Nature paper 
-**_Low Latency Automotive Vision with Event Cameras_** by Daniel Gehrig and Davide Scaramuzza. 
+This repository contains code from our 2024 Nature paper which can be accessed for free here [PDF Open Access](https://www.nature.com/articles/s41586-024-07409-w).
+**_Low Latency Automotive Vision with Event Cameras_** by [Daniel Gehrig](https://danielgehrig18.github.io/) and [Davide Scaramuzza](http://rpg.ifi.uzh.ch/people_scaramuzza.html). 
 If you use our code or refer to this project, please cite it using
 
-```
+```bibtex
 @inproceedings{Gehrig24nature,
   author    = {Gehrig, Daniel and Scaramuzza, Davide},
   title     = {Low Latency Automotive Vision with Event Cameras},
