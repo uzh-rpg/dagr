@@ -23,3 +23,4 @@ git checkout f3ea48b0eebef93b2052396fd23b3d40e6ff0363
 pip install -e $DAGR_DIR/libs/dsec-det
 pip install -e $DAGR_DIR/libs/detectron2
 pip install -e $DAGR_DIR/libs/YOLOX
+pip install seaborn
