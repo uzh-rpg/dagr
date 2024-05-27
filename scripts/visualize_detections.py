@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 from dsec_det.directory import DSECDirectory
-from dsec_det.dataset import load_events_in_timewindow, load_image_with_index, load_start_and_end_time
+from dsec_det.io import extract_from_h5_by_timewindow, extract_image_by_index, load_start_and_end_time
 from dsec_det.preprocessing import compute_index
 
 from dagr.visualization.bbox_viz import draw_bbox_on_img
@@ -43,16 +43,17 @@ if __name__ == '__main__':
     vis_timestamps = np.arange(t0, t1, step=args.vis_time_step_us)
     step_index_to_image_index = compute_index(dsec_directory.images.timestamps, vis_timestamps)
     step_index_to_boxes_index = compute_index(detection_timestamps, vis_timestamps)
+
     scale = 2
 
     for step, t in enumerate(vis_timestamps):
 
         # find most recent image
         image_index = step_index_to_image_index[step]
-        image = load_image_with_index(dsec_directory, image_index)
+        image = extract_image_by_index(dsec_directory.images.image_files_distorted, image_index)
 
         # find events within time window [image_timestamps, t]
-        events = load_events_in_timewindow(dsec_directory, t-args.event_time_window_us, t)
+        events = extract_from_h5_by_timewindow(dsec_directory.events.event_file, t-args.event_time_window_us, t)
 
         # find most recent bounding boxes
         boxes_index = step_index_to_boxes_index[step]

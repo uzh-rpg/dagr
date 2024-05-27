@@ -57,6 +57,7 @@ def FLAGS():
     parser.add_argument('--aug_trans', default=argparse.SUPPRESS, type=float)
     parser.add_argument('--aug_zoom', default=argparse.SUPPRESS, type=float)
     parser.add_argument('--l_r', default=argparse.SUPPRESS, type=float)
+    parser.add_argument('--no_eval', action="store_true")
     parser.add_argument('--tot_num_epochs', default=argparse.SUPPRESS, type=int)
 
     parser.add_argument('--run_test', action="store_true")

@@ -64,7 +64,8 @@ if __name__ == '__main__':
 
     print("init datasets")
     test_dataset = DSEC(root=args.dataset_directory, split="test", transform=Augmentations.transform_testing,
-                        debug=False, min_bbox_diag=15, min_bbox_height=10, only_perfect_tracks=True)
+                        debug=False, min_bbox_diag=15, min_bbox_height=10, only_perfect_tracks=True,
+                        no_eval=args.no_eval)
     test_loader = DataLoader(test_dataset, follow_batch=['bbox', "bbox0"], batch_size=args.batch_size, shuffle=False, num_workers=0, drop_last=True)
 
     print("init net")
@@ -81,8 +82,11 @@ if __name__ == '__main__':
     with torch.no_grad():
         for n_us in np.linspace(0, 50000, args.num_interframe_steps):
             test_loader.dataset.set_num_us(int(n_us))
-            metrics, detections_one_offset = run_test_with_visualization(test_loader, ema.ema, dataset=args.dataset, name=wandb.run.name, compile_detections=True)
+            metrics, detections_one_offset = run_test_with_visualization(test_loader, ema.ema, dataset=args.dataset, name=wandb.run.name, compile_detections=True,
+                                                                         no_eval=args.no_eval)
             detections.extend(detections_one_offset)
-            pprint(f"Time Window: {int(n_us)} ms \t mAP: {metrics['mAP']}")
+
+            if metrics is not None:
+                pprint(f"Time Window: {int(n_us)} ms \t mAP: {metrics['mAP']}")
 
         save_detections(output_directory, detections)
