@@ -67,7 +67,8 @@ CUDA_VISIBLE_DEVICES=$DEVICE python scripts/run_test_interframe.py --config conf
                                                                    --img_net resnet50 \
                                                                    --checkpoint data/dagr_s_50.pth \
                                                                    --batch_size 8 \
-                                                                   --dataset_directory data/DSEC_fragment \                                                        
+                                                                   --dataset_directory data/DSEC_fragment \
+                                                                   --no_eval \                                                        
                                                                    --output_directory $LOG_DIR
 ```
 note the wandb directory as `$WANDB_DIR` and then visualize the detections with 
