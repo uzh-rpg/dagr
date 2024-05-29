@@ -35,7 +35,7 @@ Then start by installing the main libraries. Make sure Anaconda (or better Mamba
 cd $DAGR_DIR
 conda create -y -n dagr python=3.8 
 conda activate dagr
-conda install -y pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
+conda install -y setuptools==69.5.1 mkl==2024.0 pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 cudatoolkit=11.3 -c pytorch
 ```
 Then install the pytorch-geometric libraries. This may take a while.
 ```bash
@@ -45,6 +45,7 @@ The above bash file will figure out the CUDA and Torch version, and install the 
 Then, download and install additional dependencies locally 
 ```bash
 bash download_and_install_dependencies.sh
+conda install -y h5py blosc-hdf5-plugin
 ```
 Finally, install the dagr package
 ```bash

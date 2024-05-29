@@ -13,10 +13,13 @@ def format_detections(sequences, t, detections):
         det['t'] = t[i]
     return detections
 
-def run_test_with_visualization(loader, model, dataset: str, log_every_n_batch=-1, name="", compile_detections=False):
+def run_test_with_visualization(loader, model, dataset: str, log_every_n_batch=-1, name="", compile_detections=False,
+                                no_eval=False):
     model.eval()
-    mapcalc = DetectionBuffer(height=loader.dataset.height, width=loader.dataset.width,
-                              classes=loader.dataset.classes)
+
+    if not no_eval:
+        mapcalc = DetectionBuffer(height=loader.dataset.height, width=loader.dataset.width,
+                                  classes=loader.dataset.classes)
 
     counter = 0
     if compile_detections:
@@ -36,7 +39,8 @@ def run_test_with_visualization(loader, model, dataset: str, log_every_n_batch=-
             log_bboxes(data_for_visualization, targets=targets, detections=detections, bidx=4,
                        class_names=loader.dataset.classes, key="testing/evaluated_bboxes")
 
-        mapcalc.update(detections, targets, dataset, data.height[0], data.width[0])
+        if not no_eval:
+            mapcalc.update(detections, targets, dataset, data.height[0], data.width[0])
 
         if i % 5 == 0:
             torch.cuda.empty_cache()
@@ -45,6 +49,8 @@ def run_test_with_visualization(loader, model, dataset: str, log_every_n_batch=-
 
     torch.cuda.empty_cache()
 
-    data = mapcalc.compute()
+    data = None
+    if not no_eval:
+        data = mapcalc.compute()
 
     return (data, compiled_detections) if compile_detections else data

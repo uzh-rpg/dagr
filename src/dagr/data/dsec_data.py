@@ -64,7 +64,8 @@ class DSEC(Dataset):
                  scale=2,
                  cropped_height=430,
                  only_perfect_tracks=False,
-                 demo=False):
+                 demo=False,
+                 no_eval=False):
 
         Dataset.__init__(self)
 
@@ -94,6 +95,10 @@ class DSEC(Dataset):
             init_transforms(transform.transforms, self.height, self.dataset.width)
 
         self.transform = transform
+        self.no_eval = no_eval
+
+        if self.no_eval:
+            only_perfect_tracks = False
 
         self.image_index_pairs, self.track_masks = filter_tracks(dataset=self.dataset, image_width=self.width,
                                                                  image_height=self.height,
@@ -149,7 +154,8 @@ class DSEC(Dataset):
         if self.num_us >= 0:
             image_ts_1 = image_ts_0 + self.num_us
             events = {k: v[events['t'] < image_ts_1] for k, v in events.items()}
-            detections_1 = interpolate_tracks(detections_0, detections_1, image_ts_1)
+            if not self.no_eval:
+                detections_1 = interpolate_tracks(detections_0, detections_1, image_ts_1)
 
         # here, the timestamp of the events is no longer absolute
         events = self.preprocess_events(events)
