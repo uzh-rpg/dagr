@@ -27,6 +27,7 @@ def compute_pooling_at_each_layer(pooling_dim_at_output, num_layers):
     poolings = torch.stack(poolings)
     return poolings
 
+
 class Net(torch.nn.Module):
     def __init__(self, args, height, width):
         super().__init__()
@@ -51,7 +52,7 @@ class Net(torch.nn.Module):
         self.use_image = args.use_image
         self.num_scales = args.num_scales
 
-        self.num_classes = dict(dsec=2).get(args.dataset, 2)
+        self.num_classes = dict(dsec=2, ncaltech101=100).get(args.dataset, 2)
 
         self.events_to_graph = EV_TGN(args)
 
@@ -66,6 +67,7 @@ class Net(torch.nn.Module):
         poolings = compute_pooling_at_each_layer(args.pooling_dim_at_output, num_layers=4)
         max_vals_for_cartesian = 2*poolings[:,:2].max(-1).values
         self.strides = torch.ceil(poolings[-2:,1] * height).numpy().astype("int32").tolist()
+        self.strides = self.strides[-self.num_scales:]
 
         effective_radius = 2*float(int(args.radius * width + 2) / width)
         self.edge_attrs = Cartesian(norm=True, cat=False, max_value=effective_radius)

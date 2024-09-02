@@ -8,7 +8,7 @@ from yolox.models import YOLOX, YOLOXHead, IOUloss
 from dagr.model.networks.net import Net
 from dagr.model.layers.spline_conv import SplineConvToDense
 from dagr.model.layers.conv import ConvBlock
-from dagr.model.utils import shallow_copy, init_subnetwork, voxel_size_to_params, postprocess_network_output, convert_to_evaluation_format, init_grid_and_stride
+from dagr.model.utils import shallow_copy, init_subnetwork, voxel_size_to_params, postprocess_network_output, convert_to_evaluation_format, init_grid_and_stride, convert_to_training_format
 
 
 class DAGR(YOLOX):
@@ -75,10 +75,10 @@ class DAGR(YOLOX):
             self.head.output_sizes = self.backbone.get_output_sizes()
 
         if self.training:
-            targets = self.convert_to_training_format(x.bbox, x.bbox_batch, x.num_graphs)
+            targets = convert_to_training_format(x.bbox, x.bbox_batch, x.num_graphs)
 
             if self.backbone.use_image:
-                targets0 = self.convert_to_training_format(x.bbox0, x.bbox0_batch, x.num_graphs)
+                targets0 = convert_to_training_format(x.bbox0, x.bbox0_batch, x.num_graphs)
                 targets = (targets, targets0)
 
             # gt_target inputs need to be [l cx cy w h] in pixels
