@@ -148,6 +148,8 @@ if __name__ == '__main__':
         events['p'] = 2 * events['p'].astype("int8") - 1
         downsampled_events, change_map = downsample_events(events, change_map=change_map, input_height=args.input_height, input_width=args.input_width,
                                                       output_height=args.output_height, output_width=args.output_width)
+        
+        events['p'] = ((events['p'] + 1)//2).astype("int8")
         writer.add_data(downsampled_events)
         pbar.update(1)
 
