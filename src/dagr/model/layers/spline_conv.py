@@ -8,7 +8,7 @@ from torch_spline_conv import spline_basis
 
 class MySplineConv(SplineConv):
     def __init__(self, in_channels, out_channels, args, bias=False, degree=1, **kwargs):
-        self.reproducible = False
+        self.reproducible = True
         self.to_sparse_tensor = ToSparseTensor(attr="edge_attr", remove_edge_index=False)
         super().__init__(in_channels=in_channels, out_channels=out_channels, bias=bias, degree=degree,
                          dim=args.edge_attr_dim, aggr=args.aggr, kernel_size=args.kernel_size)

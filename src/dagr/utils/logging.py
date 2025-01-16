@@ -65,6 +65,8 @@ def log_bboxes(data: Batch,
     gt_bbox = torch.cat(gt_bbox)
     images = torch.cat(images, dim=-1)
 
+    bidx = min([bidx, len(data)])
+
     gt_bbox[:,[0,2]] /= (bidx * datum.width)
     gt_bbox[:,[1,3]] /= (2 * datum.height)
 

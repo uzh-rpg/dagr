@@ -17,6 +17,9 @@ from dsec_det.directory import BaseDirectory
 from dagr.data.augment import init_transforms
 from dagr.data.utils import to_data
 
+from dagr.visualization.bbox_viz import draw_bbox_on_img
+from dagr.visualization.event_viz import draw_events_on_image
+
 
 def tracks_to_array(tracks):
     return np.stack([tracks['x'], tracks['y'], tracks['w'], tracks['h'], tracks['class_id']], axis=1)
@@ -110,6 +113,21 @@ class DSEC(Dataset):
 
     def set_num_us(self, num_us):
         self.num_us = num_us
+
+    def visualize_debug(self, index):
+        data = self.__getitem__(index)
+        image = data.image[0].permute(1,2,0).numpy()
+        p = data.x[:,0].numpy()
+        x, y = data.pos.t().numpy()
+        b_x, b_y, b_w, b_h, b_c = data.bbox.t().numpy()
+
+        image = draw_events_on_image(image, x, y, p)
+        image = draw_bbox_on_img(image, b_x, b_y, b_w, b_h,
+                                 b_c, np.ones_like(b_c), conf=0.3, nms=0.65)
+
+        cv2.imshow(f"Debug {index}", image)
+        cv2.waitKey(0)
+
 
     def __len__(self):
         return sum(len(d) for d in self.image_index_pairs.values())

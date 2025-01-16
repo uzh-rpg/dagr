@@ -67,10 +67,11 @@ def postprocess_network_output(prediction, num_classes, conf_thre=0.01, nms_thre
 
         # If none are remaining => process next image
         if len(image_pred) == 0:
+            device = prediction.device
             output.append({
-                "boxes": torch.zeros(0, 4, dtype=torch.float32),
-                "scores": torch.zeros(0, dtype=torch.float),
-                "labels": torch.zeros(0, dtype=torch.long)
+                "boxes": torch.zeros(0, 4, dtype=torch.float32, device=device),
+                "scores": torch.zeros(0, dtype=torch.float, device=device),
+                "labels": torch.zeros(0, dtype=torch.long, device=device)
             })
             continue
 
@@ -86,10 +87,11 @@ def postprocess_network_output(prediction, num_classes, conf_thre=0.01, nms_thre
             detections = detections[conf_mask]
 
         if len(detections) == 0:
+            device = prediction.device
             output.append({
-                "boxes": torch.zeros(0, 4, dtype=torch.float32),
-                "scores": torch.zeros(0, dtype=torch.float),
-                "labels": torch.zeros(0, dtype=torch.long)
+                "boxes": torch.zeros(0, 4, dtype=torch.float32, device=device),
+                "scores": torch.zeros(0, dtype=torch.float, device=device),
+                "labels": torch.zeros(0, dtype=torch.long, device=device)
             })
             continue
 
