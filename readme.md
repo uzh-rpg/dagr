@@ -167,4 +167,16 @@ python scripts/train_ncaltech101.py --config config/dagr-l-ncaltech.yaml \
                                     --dataset_directory $DAGR_DIR/data/ \
                                     --output_directory $DAGR_DIR/logs/
 ```
+To train on DSEC, make a symlink to the data directory via 
+```bash
+ln -s $DSEC_ROOT $DAGR_DIR/data/dsec 
+```
+Then run training with 
+```bash
 
+python scripts/train_dsec.py --config config/dagr-s-dsec.yaml \
+                             --exp_name dsec_s_50 \
+                             --dataset_directory $DAGR_DIR/data/ \
+                             --output_directory $DAGR_DIR/logs/ \
+                             --use_image --img_net resnet50
+```
