@@ -29,7 +29,7 @@ class Cartesian(torch.nn.Module):
 
     def forward(self, data):
         if data.edge_index.shape[1] > 0:
-            return T.Cartesian.forward(self, data)
+            return T.Cartesian.__call__(self, data)
         else:
             data.edge_attr = torch.zeros((0, 3), dtype=data.x.dtype, device=data.x.device)
             return data
