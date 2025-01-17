@@ -15,6 +15,7 @@ def BASE_FLAGS():
     parser.add_argument("--config", type=Path, default="../config/detection.yaml")
     parser.add_argument("--use_image", action="store_true")
     parser.add_argument("--no_events", action="store_true")
+    parser.add_argument("--pretrain_cnn", action="store_true")
     parser.add_argument("--keep_temporal_ordering", action="store_true")
 
     # task params
