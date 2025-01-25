@@ -178,5 +178,5 @@ python scripts/train_dsec.py --config config/dagr-s-dsec.yaml \
                              --exp_name dsec_s_50 \
                              --dataset_directory $DAGR_DIR/data/ \
                              --output_directory $DAGR_DIR/logs/ \
-                             --use_image --img_net resnet50
+                             --use_image --img_net resnet50 --batch_size 32
 ```
