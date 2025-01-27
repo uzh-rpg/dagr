@@ -19,6 +19,9 @@ If you use our code or refer to this project, please cite it using
 }
 ```
 
+## Updates 
+* Training code for N-Caltech101 and DSEC-DET have been open sourced. To train your model jump to the [training section](#training)
+
 ## Installation
 First, download the github repository and its dependencies
 ```bash
