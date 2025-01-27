@@ -8,7 +8,7 @@ from yolox.models import YOLOX, YOLOXHead, IOUloss
 from dagr.model.networks.net import Net
 from dagr.model.layers.spline_conv import SplineConvToDense
 from dagr.model.layers.conv import ConvBlock
-from dagr.model.utils import shallow_copy, init_subnetwork, voxel_size_to_params, postprocess_network_output, convert_to_evaluation_format, init_grid_and_stride
+from dagr.model.utils import shallow_copy, init_subnetwork, voxel_size_to_params, postprocess_network_output, convert_to_evaluation_format, init_grid_and_stride, convert_to_training_format
 
 
 class DAGR(YOLOX):
@@ -24,6 +24,7 @@ class DAGR(YOLOX):
                        in_channels=backbone.out_channels,
                        in_channels_cnn=backbone.out_channels_cnn,
                        strides=backbone.strides,
+                       pretrain_cnn=args.pretrain_cnn,
                        args=args)
 
         super().__init__(backbone=backbone, head=head)
@@ -75,10 +76,10 @@ class DAGR(YOLOX):
             self.head.output_sizes = self.backbone.get_output_sizes()
 
         if self.training:
-            targets = self.convert_to_training_format(x.bbox, x.bbox_batch, x.num_graphs)
+            targets = convert_to_training_format(x.bbox, x.bbox_batch, x.num_graphs)
 
             if self.backbone.use_image:
-                targets0 = self.convert_to_training_format(x.bbox0, x.bbox0_batch, x.num_graphs)
+                targets0 = convert_to_training_format(x.bbox0, x.bbox0_batch, x.num_graphs)
                 targets = (targets, targets0)
 
             # gt_target inputs need to be [l cx cy w h] in pixels
@@ -130,10 +131,12 @@ class GNNHead(YOLOXHead):
         in_channels_cnn=[256, 512, 1024],
         act="silu",
         depthwise=False,
+        pretrain_cnn=False,
         args=None
     ):
         YOLOXHead.__init__(self, num_classes, args.yolo_stem_width, strides, in_channels, act, depthwise)
 
+        self.pretrain_cnn = pretrain_cnn
         self.num_scales = args.num_scales
         self.use_image = args.use_image
         self.batch_size = args.batch_size
@@ -236,7 +239,7 @@ class GNNHead(YOLOXHead):
             # if we are only training the image detectors (pretraining),
             # we only need to minimize the loss at detections from the image branch.
             if self.use_image:
-                return self.get_losses(
+                losses_image = self.get_losses(
                     imgs,
                     image_out['x_shifts'],
                     image_out['y_shifts'],
@@ -246,6 +249,26 @@ class GNNHead(YOLOXHead):
                     image_out['origin_preds'],
                     dtype=image_out['x_shifts'][0].dtype,
                 )
+
+                if not self.pretrain_cnn:
+                    losses_events  = self.get_losses(
+                    imgs,
+                    hybrid_out['x_shifts'],
+                    hybrid_out['y_shifts'],
+                    hybrid_out['expanded_strides'],
+                    labels,
+                    torch.cat(hybrid_out['outputs'], 1),
+                    hybrid_out['origin_preds'],
+                    dtype=xin[0].x.dtype,
+                )
+
+                    losses_image = list(losses_image)
+                    losses_events = list(losses_events)
+
+                    for i in range(5):
+                        losses_image[i] = losses_image[i] + losses_events[i]
+
+                return losses_image
             else:
                 return self.get_losses(
                     imgs,

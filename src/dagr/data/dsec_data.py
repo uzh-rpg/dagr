@@ -95,7 +95,7 @@ class DSEC(Dataset):
         self.class_remapping = compute_class_mapping(self.classes, self.dataset.classes, self.MAPPING)
 
         if transform is not None and hasattr(transform, "transforms"):
-            init_transforms(transform.transforms, self.height, self.dataset.width)
+            init_transforms(transform.transforms, self.height, self.width)
 
         self.transform = transform
         self.no_eval = no_eval

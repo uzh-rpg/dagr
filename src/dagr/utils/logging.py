@@ -11,17 +11,103 @@ from pathlib import Path
 from torch_geometric.data import Data
 
 
-def set_up_logging_directory(dataset, task, output_directory):
+class Checkpointer:
+    def __init__(self, output_directory: Optional[Path] = None, args=None, optimizer=None, scheduler=None, ema=None, model=None):
+        self.optimizer = optimizer
+        self.scheduler = scheduler
+        self.ema = ema
+        self.model = model
+
+        self.mAP_max = 0
+        self.output_directory = output_directory
+        self.args = args
+
+    def restore_if_existing(self, folder, resume_from_best=False):
+        checkpoint = self.search_for_checkpoint(folder, best=resume_from_best)
+        if checkpoint is not None:
+            print(f"Found existing checkpoint at {checkpoint}, resuming...")
+            self.restore_checkpoint(folder, best=resume_from_best)
+
+    def mAP_from_checkpoint_name(self, checkpoint_name: Path):
+        return float(str(checkpoint_name).split("_")[-1].split(".pth")[0])
+
+    def search_for_checkpoint(self, resume_checkpoint: Path, best=False):
+        checkpoints = list(resume_checkpoint.glob("*.pth"))
+        if len(checkpoints) == 0:
+            return None
+
+        if not best:
+            if resume_checkpoint / "last_model.pth" in checkpoints:
+                return resume_checkpoint / "last_model.pth"
+
+        # remove "last_model.pth" from checkpoints
+        if resume_checkpoint / "last_model.pth" in checkpoints:
+            checkpoints.remove(resume_checkpoint / "last_model.pth")
+
+        checkpoints = sorted(checkpoints, key=lambda x: self.mAP_from_checkpoint_name(x.name))
+        return checkpoints[-1]
+
+
+    def restore_if_not_none(self, target, source):
+        if target is not None:
+            target.load_state_dict(source)
+
+    def restore_checkpoint(self, checkpoint_directory, best=False):
+        path = self.search_for_checkpoint(checkpoint_directory, best)
+        assert path is not None, "No checkpoint found in {}".format(checkpoint_directory)
+        print("Restoring checkpoint from {}".format(path))
+        checkpoint = torch.load(path)
+
+        checkpoint['model'] = self.fix_checkpoint(checkpoint['model'])
+        checkpoint['ema'] = self.fix_checkpoint(checkpoint['ema'])
+
+        if self.ema is not None:
+            self.ema.ema.load_state_dict(checkpoint.get('ema', checkpoint['model']))
+            self.ema.updates = checkpoint.get('ema_updates', 0)
+        self.restore_if_not_none(self.model, checkpoint['model'])
+        self.restore_if_not_none(self.optimizer, checkpoint['optimizer'])
+        self.restore_if_not_none(self.scheduler, checkpoint['scheduler'])
+        return checkpoint['epoch']
+
+    def fix_checkpoint(self, state_dict):
+        return state_dict
+
+    def checkpoint(self, epoch: int, name: str=""):
+        self.output_directory.mkdir(exist_ok=True, parents=True)
+
+        checkpoint = {
+            "ema": self.ema.ema.state_dict(),
+            "ema_updates": self.ema.updates,
+            "model": self.model.state_dict(),
+            "optimizer": self.optimizer.state_dict(),
+            "scheduler": self.scheduler.state_dict(),
+            "epoch": epoch,
+            "args": self.args
+        }
+
+        torch.save(checkpoint, self.output_directory / f"{name}.pth")
+
+    def process(self, data: Dict[str, float], epoch: int):
+        mAP = data['mAP']
+        data = {f"validation/metric/{k}": v for k, v in data.items()}
+        data['epoch'] = epoch
+        wandb.log(data)
+
+        if mAP > self.mAP_max:
+            self.checkpoint(epoch, name=f"best_model_mAP_{mAP}")
+            self.mAP_max = mAP
+
+
+def set_up_logging_directory(dataset, task, output_directory, exp_name="temp"):
     project = f"low_latency-{dataset}-{task}"
 
     output_directory = output_directory / dataset / task
     output_directory.mkdir(parents=True, exist_ok=True)
-    wandb.init(project=project, entity="rpg", save_code=True, dir=str(output_directory))
+    wandb.init(project=project, id=exp_name, entity="danielgehrig18", save_code=True, dir=str(output_directory))
 
-    name = wandb.run.name
+    name = wandb.run.id
     output_directory = output_directory / name
     output_directory.mkdir(parents=True, exist_ok=True)
-    os.system(f"cp -r {os.path.join(os.path.dirname(__file__), '../../low_latency_object_detection')} {str(output_directory)}")
 
     return output_directory
 

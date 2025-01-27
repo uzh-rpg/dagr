@@ -147,3 +147,36 @@ python scripts/visualize_detections.py --detections_folder $LOG_DIR/$WANDB_DIR \
 ```
 This will start a visualization window showing the detections over a given sequence. If you want to save the detections 
 to a video, use the `--write_to_output` flag, which will create a video in the folder `$LOG_DIR/$WANDB_DIR/visualization}`.  
+
+## Training 
+To train on N-Caltech101, download the files with
+
+```bash
+wget https://download.ifi.uzh.ch/rpg/dagr/data/ncaltech101.zip -P $DAGR_DIR/data/
+cd $DAGR_DIR/data/
+unzip ncaltech101.zip 
+rm -rf ncaltech101.zip 
+```
+
+Then run training with 
+
+```bash
+
+python scripts/train_ncaltech101.py --config config/dagr-l-ncaltech.yaml \
+                                    --exp_name ncaltech_l \
+                                    --dataset_directory $DAGR_DIR/data/ \
+                                    --output_directory $DAGR_DIR/logs/
+```
+To train on DSEC, make a symlink to the data directory via 
+```bash
+ln -s $DSEC_ROOT $DAGR_DIR/data/dsec 
+```
+Then run training with 
+```bash
+
+python scripts/train_dsec.py --config config/dagr-s-dsec.yaml \
+                             --exp_name dsec_s_50 \
+                             --dataset_directory $DAGR_DIR/data/ \
+                             --output_directory $DAGR_DIR/logs/ \
+                             --use_image --img_net resnet50 --batch_size 32
+```

@@ -58,7 +58,10 @@ def _crop_image(image, left, right):
     return image
 
 def _resize_image(image, height, width, bg=None):
+
+    image = image[0].permute(1, 2, 0).numpy()
     new_image = cv2.resize(image, (width, height), interpolation=cv2.INTER_NEAREST)
+
     px = (new_image.shape[1] - image.shape[1])//2
     py = (new_image.shape[0] - image.shape[0])//2
 
@@ -67,6 +70,8 @@ def _resize_image(image, height, width, bg=None):
     else:
         assert bg is not None
         bg[-py:-py+new_image.shape[0], -px:-px+new_image.shape[1]] = new_image
+
+    bg = torch.from_numpy(bg).permute(2, 0, 1)[None]
 
     return bg
 
@@ -93,7 +98,10 @@ class RandomHFlip(BaseTransform):
         data.pos[:,0] = data.width - 1 - data.pos[:,0]
 
         if hasattr(data, "image"):
-            data.image = np.ascontiguousarray(data.image[:,::-1])
+            image = data.image[0].permute(1,2,0).numpy()
+            image = np.ascontiguousarray(image[:,::-1])
+            image = torch.from_numpy(image).permute(2, 0, 1)[None]
+            data.image = image
 
         if hasattr(data, "bbox"):
             data.bbox[:, 0] = data.width - 1 - (data.bbox[:, 0] + data.bbox[:, 2])
@@ -256,9 +264,11 @@ class RandomTranslate(BaseTransform):
         data.pos = data.pos + move_px
 
         if hasattr(data, "image"):
-            image = self.pad(data.image, self.image.copy())
-            data.image = image[self.size[1]-move_px[1]:self.size[1]-move_px[1]+data.height, \
-                               self.size[0]-move_px[0]:self.size[0]-move_px[0]+data.width]
+            image = data.image[0].permute(1, 2, 0).numpy()
+            image = self.pad(image, self.image.copy())
+            image = image[self.size[1]-move_px[1]:self.size[1]-move_px[1]+data.height, \
+                          self.size[0]-move_px[0]:self.size[0]-move_px[0]+data.width]
+            data.image = torch.from_numpy(image).permute(2, 0, 1)[None]
 
         if hasattr(data, "bbox"):
             data.bbox[:,:2] += move_px

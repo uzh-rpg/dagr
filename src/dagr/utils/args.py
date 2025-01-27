@@ -15,6 +15,7 @@ def BASE_FLAGS():
     parser.add_argument("--config", type=Path, default="../config/detection.yaml")
     parser.add_argument("--use_image", action="store_true")
     parser.add_argument("--no_events", action="store_true")
+    parser.add_argument("--pretrain_cnn", action="store_true")
     parser.add_argument("--keep_temporal_ordering", action="store_true")
 
     # task params
@@ -56,6 +57,7 @@ def FLAGS():
     # learning params
     parser.add_argument('--aug_trans', default=argparse.SUPPRESS, type=float)
     parser.add_argument('--aug_zoom', default=argparse.SUPPRESS, type=float)
+    parser.add_argument('--exp_name', default=argparse.SUPPRESS, type=str)
     parser.add_argument('--l_r', default=argparse.SUPPRESS, type=float)
     parser.add_argument('--no_eval', action="store_true")
     parser.add_argument('--tot_num_epochs', default=argparse.SUPPRESS, type=int)
