@@ -28,6 +28,16 @@ def compute_pooling_at_each_layer(pooling_dim_at_output, num_layers):
     return poolings
 
 
+def events_to_histogram(p, b, x, y, shape):
+    batch_size, channels, height, width = shape
+    x = x * width
+    y = y * height
+    p_01 = (p + 1) // 2
+    histogram = torch.zeros((batch_size, channels, height, width), device=p.device, dtype=torch.float)
+    idx = b.long() * height * width * channels + p_01.long() * height * width + y.long() * width + x.long()
+    histogram.put_(index=idx, source=torch.ones_like(p_01), accumulate=True)
+    return histogram
+
 class Net(torch.nn.Module):
     def __init__(self, args, height, width):
         super().__init__()
@@ -41,8 +51,9 @@ class Net(torch.nn.Module):
         if args.use_image:
             img_net = eval(args.img_net)
             self.out_channels_cnn = [256, 256]
+            input_channels = 6 if args.train_ev_yolox else 3
             self.net = HookModule(img_net(pretrained=True),
-                                  input_channels=3,
+                                  input_channels=input_channels,
                                   height=height, width=width,
                                   feature_layers=["conv1", "layer1", "layer2", "layer3", "layer4"],
                                   output_layers=["layer3", "layer4"],
@@ -51,6 +62,7 @@ class Net(torch.nn.Module):
 
         self.use_image = args.use_image
         self.num_scales = args.num_scales
+        self.train_ev_yolox = args.train_ev_yolox
 
         self.num_classes = dict(dsec=2, ncaltech101=100).get(args.dataset, 2)
 
@@ -107,7 +119,12 @@ class Net(torch.nn.Module):
 
     def forward(self, data: Data, reset=True):
         if self.use_image:
-            image_feat, image_outputs = self.net(data.image)
+            image = data.image
+            if self.train_ev_yolox:
+                histogram = events_to_histogram(p=data.x[:,0], x=data.pos[:,0], y=data.pos[:,1],
+                                                shape=image.shape, b=data.batch)
+                image = torch.cat([image, histogram], dim=1)
+            image_feat, image_outputs = self.net(image)
 
         if hasattr(data, 'reset'):
             reset = data.reset

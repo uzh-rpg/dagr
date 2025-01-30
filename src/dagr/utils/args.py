@@ -17,6 +17,7 @@ def BASE_FLAGS():
     parser.add_argument("--no_events", action="store_true")
     parser.add_argument("--pretrain_cnn", action="store_true")
     parser.add_argument("--keep_temporal_ordering", action="store_true")
+    parser.add_argument("--train_ev_yolox", action="store_true")
 
     # task params
     parser.add_argument("--task", default=argparse.SUPPRESS, type=str)

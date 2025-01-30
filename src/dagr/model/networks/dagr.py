@@ -15,6 +15,7 @@ class DAGR(YOLOX):
     def __init__(self, args, height, width):
         self.conf_threshold = 0.001
         self.nms_threshold = 0.65
+        self.train_ev_yolox = args.train_ev_yolox
 
         self.height = height
         self.width = width
@@ -136,6 +137,7 @@ class GNNHead(YOLOXHead):
     ):
         YOLOXHead.__init__(self, num_classes, args.yolo_stem_width, strides, in_channels, act, depthwise)
 
+        self.train_ev_yolox = args.train_ev_yolox
         self.pretrain_cnn = pretrain_cnn
         self.num_scales = args.num_scales
         self.use_image = args.use_image
@@ -213,8 +215,14 @@ class GNNHead(YOLOXHead):
                                      k, self.strides[k], ret=image_out)
 
         batch_size = len(out_cnn["cls_output"][0]) if self.use_image else self.batch_size
-        cls_output, reg_output, obj_output = self.process_feature(xin[0], self.stem1, self.cls_conv1, self.reg_conv1,
-                                                        self.cls_pred1, self.reg_pred1, self.obj_pred1, batch_size=batch_size, cache=self.cache)
+
+        if self.train_ev_yolox:
+            cls_output = torch.zeros_like(out_cnn["cls_output"][0])
+            reg_output = torch.zeros_like(out_cnn["reg_output"][0])
+            obj_output = torch.zeros_like(out_cnn["obj_output"][0])
+        else:
+            cls_output, reg_output, obj_output = self.process_feature(xin[0], self.stem1, self.cls_conv1, self.reg_conv1,
+                                                            self.cls_pred1, self.reg_pred1, self.obj_pred1, batch_size=batch_size, cache=self.cache)
 
         if self.use_image:
             cls_output[:batch_size] += out_cnn["cls_output"][0].detach()
@@ -224,9 +232,14 @@ class GNNHead(YOLOXHead):
         self.collect_outputs(cls_output, reg_output, obj_output, 0, self.strides[0], ret=hybrid_out)
 
         if self.num_scales > 1:
-            cls_output, reg_output, obj_output = self.process_feature(xin[1], self.stem2, self.cls_conv2,
-                                                                      self.reg_conv2, self.cls_pred2, self.reg_pred2,
-                                                                      self.obj_pred2, batch_size=batch_size, cache=self.cache)
+            if self.train_ev_yolox:
+                cls_output = torch.zeros_like(out_cnn["cls_output"][1])
+                reg_output = torch.zeros_like(out_cnn["reg_output"][1])
+                obj_output = torch.zeros_like(out_cnn["obj_output"][1])
+            else:
+                cls_output, reg_output, obj_output = self.process_feature(xin[1], self.stem2, self.cls_conv2,
+                                                                          self.reg_conv2, self.cls_pred2, self.reg_pred2,
+                                                                          self.obj_pred2, batch_size=batch_size, cache=self.cache)
             if self.use_image:
                 batch_size = out_cnn["cls_output"][0].shape[0]
                 cls_output[:batch_size] += out_cnn["cls_output"][1].detach()
